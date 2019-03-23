@@ -3,8 +3,6 @@ console.log("Javascript is linked!")
 var canvas = document.querySelector('#myCanvas');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-
-
 var c = canvas.getContext('2d'); //so that we can draw 2d elements that can be manipulated within the 2d space
 // //c.fillReact(x,y,width,height); parameters for the fillReact function, they are both pixels taking reference from the top left of the screen.
 // c.fillStyle = "rgba(255,0,0,0.5)"; // red - eyes
@@ -83,17 +81,51 @@ var c = canvas.getContext('2d'); //so that we can draw 2d elements that can be m
 //   c.stroke();
 // }
 
+var mouse = {
+  x: undefined,
+  y: undefined
+}
+//create the limits to which our circles will expand and contract...
+var maxRadius = 100;
+var minRadius = 5;
+
+//create an array to cover the random colors we want to generate for the circles...
+var colorArray = [
+  '#32a51d',
+  '#0c3ba4',
+  '#dc481a',
+  '#db12de',
+  '#0ecbe2',
+  '#cbee18',
+];
+
+
+window.addEventListener('mousemove',function(event){
+  mouse.x = event.x;
+  mouse.y = event.y;
+  console.log(mouse);
+})
+//so that our canvas gets automatically re-sized when the browser window size changes
+window.addEventListener('resize',function(event){
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+
 function Circle(x,y,dx,dy,radius){
   this.x = x;
   this.y = y;
   this.dx = dx;
   this.dy = dy;
   this.radius = radius;
+  this.minRadius = radius;
+  this.color = colorArray[Math.floor(Math.random()*colorArray.length)];//we specify a random index number btw zero and four, inclusive.
+  //recall that we took this.color out from this.draw. else everytime we update the position of our circles, the draw function is called too, and the circles change their colors...
+
   this.draw = function(){
     c.beginPath();
     c.arc(this.x,this.y,this.radius,0*Math.PI,2*Math.PI);
-    c.strokeStyle = "blue";
-    c.stroke();
+    c.fillStyle = this.color;
+    c.fill();
   }
   this.update = function(){
 //in order for the circle we drew to 'bounce' off the browser wall... we are going to need to insert a conditional statement:
@@ -105,12 +137,21 @@ function Circle(x,y,dx,dy,radius){
     }
       this.x += this.dx;
       this.y += this.dy;
-
-      console.log("this is now animating!")
-
+//interactivity here:
+//we use the mouse.x so that everything within 50px from the left and 50px from the right of the mouse are growing...
+  //then we also use the mouse.y so that everything below our mouse, and everything above our mouse are also growing...
+    if ((mouse.x - this.x <50)&&(mouse.x - this.x > -50)&&((mouse.y - this.y <50)&&(mouse.y - this.y > -50)))
+    {
+      if (this.radius < maxRadius){
+        this.radius += 1;
+      }
+    }//but what happens when this 'if' statement is not true?
+    else if(this.radius >this.minRadius){
+      this.radius -= 1;// so that the circles that are further away from our mouse cursor get reduced
+    }
+      //console.log("this is now animating!")
       this.draw();
   }
-
 }
 
 //Now we are going to animate the canvas but first we create a circle...
@@ -119,16 +160,16 @@ function Circle(x,y,dx,dy,radius){
 //create an array to store one hundred circles
 var circleArray = [];
 
-for (var i = 0; i < 100; i++) {
+for (var i = 0; i < 400; i++) {
   var x = (Math.random()) * (innerWidth - radius*2)+radius;
   var dx = (Math.random() - 0.5)*10; //rate of change of x position, i.e. the velocity
   var y = (Math.random()) * (innerHeight - radius*2)+radius;
   var dy = (Math.random() - 0.5)*10;
-  var radius = 30;
+  var radius = Math.random()*20 +1 ; //this ought to be randomised
   circleArray.push(new Circle(x,y,dx,dy,radius));
   //var circle = new Circle(200,400,4,4,30); //you precede the function name with new, and will store all properties and values within the variable;
 }
-  console.table(circleArray); //to check and see that the for loop worked.
+  //console.table(circleArray); //to check and see that the for loop worked.
   //But to get these circles drawn on our canvas, we are going to need to create a new function inside the animate function;
 
 //create a new variable / object:
