@@ -1,11 +1,12 @@
 * {
-  padding: 0;
   margin: 0;
+  padding: 0;
 }
 
 canvas{
   background: #eee;
+  border: 1px solid black;
   display: block;
   margin: 0 auto; /*we set margin to have auto so that the canvas will be in the center */
-  border: 1px solid black;
+
 }
